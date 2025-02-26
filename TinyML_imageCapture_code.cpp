@@ -1,8 +1,9 @@
-#include "TinyML_imageCapture"
-
-#include "Arduino"
-
 #include <TinyMLShield.h>
+#include <TensorFlowLite.h>
+
+#include "TinyML_imageCapture.h"
+
+#include "Arduino.h"
 
 
 TfLiteStatus GetImage(tflite::ErrorReporter* error_reporter, int image_width,
