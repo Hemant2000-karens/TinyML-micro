@@ -3,6 +3,8 @@
 #include "TinyML_int8_datahead.h"
 #include <ArduinoBLE.h>
 #include "opcode_setting.h"
+#include "TinyML_imageCapture.h"
+#include "Response_Error_Handle.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
@@ -34,7 +36,7 @@ void setup() {
   error_reporter = &micro_error_reporter;
 
 
-   model = tflite::GetModel(tinymodel_int8);
+   model = tflite::GetModel(_Users_hemant_Downloads_custom_cnn_model_quantized_tflite);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
     TF_LITE_REPORT_ERROR(error_reporter,
                          "Model provided is schema version %d not equal "
@@ -51,9 +53,9 @@ static tflite::MicroMutableOpResolver<5> micro_op_resolver;
 
 micro_op_resolver.AddConv2D();           // Conv2D layer
 micro_op_resolver.AddMaxPool2D();        // MaxPooling2D layer
-micro_op_resolver.AddGlobalAveragePool2D(); // GlobalAveragePooling2D layer
+micro_op_resolver.AddAveragePool2D(); // GlobalAveragePooling2D layer
 micro_op_resolver.AddFullyConnected();   // Dense layer
-micro_op_resolver.AddSigmoid();          // Sigmoid activation
+micro_op_resolver.AddSoftmax();          // Sigmoid activation
 
 // You can also add any other operations you might need
 // micro_op_resolver.AddSoftmax();         // If your model uses Softmax (though your current model doesn't)
@@ -97,6 +99,6 @@ void loop() {
   // Process the inference results.
   int8_t square = output->data.uint8[square];
   int8_t circle = output->data.uint8[circle];
-  RespondToDetection(error_reporter, square, circle);
+  ResponseErrorHandling(error_reporter, square, circle);
 
 }

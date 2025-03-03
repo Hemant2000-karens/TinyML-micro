@@ -6,7 +6,7 @@
 #ifndef ARDUINO_EXCLUDE_CODE
 #include "Arduino.h"
 
-void ResponseErrorHandling(tflite::ErrorReporter* error_reporter,int8_t circle, int8_t Square){
+void ResponseErrorHandling(tflite::ErrorReporter* error_reporter,int8_t circle, int8_t square){
 
   static bool is_initialized = false;
   if (!is_initialized) {
@@ -42,3 +42,4 @@ void ResponseErrorHandling(tflite::ErrorReporter* error_reporter,int8_t circle, 
   TF_LITE_REPORT_ERROR(error_reporter, "Circle score: %d Square score: %d",circle, square);
   }
 
+#endif 

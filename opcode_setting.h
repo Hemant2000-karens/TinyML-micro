@@ -12,6 +12,6 @@ constexpr int kMaxImageSize = kNumCols * kNumRows * kNumChannels;
 
 constexpr int circle = 0;
 constexpr int square = 1;
-extern const char *kCategoryLabels[kCategoryCout];
+extern const char *kCategoryLabels[kCategoryCount];
 
 #endif //opcode_setting
