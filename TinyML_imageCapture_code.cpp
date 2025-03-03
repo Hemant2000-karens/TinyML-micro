@@ -1,5 +1,4 @@
 #include <TinyMLShield.h>
-#include <TensorFlowLite.h>
 #include "TinyML_imageCapture.h"
 #include "Arduino.h"
 

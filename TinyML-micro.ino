@@ -1,4 +1,6 @@
-#include<TensorFlowLite.h>
+//#include <Adafruit_TFLite.h>
+
+#include <TensorFlowLite.h>
 
 #include "TinyML_int8_datahead.h"
 #include "opcode_setting.h"
