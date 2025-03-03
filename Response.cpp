@@ -6,7 +6,7 @@
 #ifndef ARDUINO_EXCLUDE_CODE
 #include "Arduino.h"
 
-void ResponseErrorHandling(tflite::ErrorReporter* error_reporter,int8_t circle, int8_t square){
+void ResponseErrorHandling(tflite::ErrorReporter* error_reporter,int8_t c, int8_t s){
 
   static bool is_initialized = false;
   if (!is_initialized) {
@@ -31,7 +31,7 @@ void ResponseErrorHandling(tflite::ErrorReporter* error_reporter,int8_t circle, 
 
   // Switch on the green LED when a person is detected,
   // the red when no person is detected
-  if (circle > square) {
+  if (c > s) {
     digitalWrite(LEDG, LOW);
     digitalWrite(LEDR, HIGH);
   } else {
@@ -39,7 +39,7 @@ void ResponseErrorHandling(tflite::ErrorReporter* error_reporter,int8_t circle, 
     digitalWrite(LEDR, LOW);
   }
 
-  TF_LITE_REPORT_ERROR(error_reporter, "Circle score: %d Square score: %d",circle, square);
+  TF_LITE_REPORT_ERROR(error_reporter, "Circle score: %d Square score: %d",c, s);
   }
 
 #endif 

@@ -1,7 +1,6 @@
 #include<TensorFlowLite.h>
 
 #include "TinyML_int8_datahead.h"
-#include <ArduinoBLE.h>
 #include "opcode_setting.h"
 #include "TinyML_imageCapture.h"
 #include "Response_Error_Handle.h"
@@ -97,8 +96,8 @@ void loop() {
   TfLiteTensor* output = interpreter->output(0);
 
   // Process the inference results.
-  int8_t square = output->data.uint8[square];
-  int8_t circle = output->data.uint8[circle];
-  ResponseErrorHandling(error_reporter, square, circle);
+  int8_t square_result = output->data.uint8[square];
+  int8_t circle_result = output->data.uint8[circle];
+  ResponseErrorHandling(error_reporter, square_result, circle_result);
 
 }
