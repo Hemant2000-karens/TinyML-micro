@@ -26,7 +26,8 @@ TfLiteTensor* input = nullptr;
 // An area of memory to use for input, output, and intermediate arrays.
 // constexpr int kTensorArenaSize = 136 * 1024;
 // constexpr int kTensorArenaSize = 750 * 1024;  // 750 KB
-constexpr int kTensorArenaSize = 200 * 1024;  // 200 KB
+//constexpr int kTensorArenaSize = 200 * 1024;  // 200 KB
+constexpr int kTensorArenaSize = 150 * 1024; // 150 KB
 
 static uint8_t tensor_arena[kTensorArenaSize];
 }  // namespace
