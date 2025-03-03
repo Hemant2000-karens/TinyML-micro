@@ -1,18 +1,17 @@
 #include <TinyMLShield.h>
 #include <TensorFlowLite.h>
-
 #include "TinyML_imageCapture.h"
-
 #include "Arduino.h"
 
+#ifndef ARDUINO_EXCLUDE_CODE
 
 TfLiteStatus GetImage(tflite::ErrorReporter* error_reporter, int image_width,
                       int image_height, int channels, int8_t* image_data) {
 
-  byte data[176 * 144]; // Receiving QCIF grayscale from camera = 176 * 144 * 1
+  byte data[176 * 144]; // Buffer to store original camera frame
+  byte resizedData[224 * 224]; // Buffer for resized image
 
   static bool g_is_camera_initialized = false;
-  static bool serial_is_initialized = false;
 
   // Initialize camera if necessary
   if (!g_is_camera_initialized) {
@@ -23,21 +22,24 @@ TfLiteStatus GetImage(tflite::ErrorReporter* error_reporter, int image_width,
     g_is_camera_initialized = true;
   }
 
-  // Read camera data
+  // Capture image from camera
   Camera.readFrame(data);
 
-  int min_x = (176 - 96) / 2;
-  int min_y = (144 - 96) / 2;
-  int index = 0;
-
-  // Crop 96x96 image. This lowers FOV, ideally we would downsample but this is simpler. 
-  for (int y = min_y; y < min_y + 96; y++) {
-    for (int x = min_x; x < min_x + 96; x++) {
-      image_data[index++] = static_cast<int8_t>(data[(y * 176) + x] - 128); // convert TF input image to signed 8-bit
+  // Resize function: Nearest Neighbor Interpolation
+  for (int y = 0; y < 224; y++) {
+    for (int x = 0; x < 224; x++) {
+      int srcX = (x * 176) / 224;
+      int srcY = (y * 144) / 224;
+      resizedData[y * 224 + x] = data[srcY * 176 + srcX];
     }
+  }
+
+  // Convert resized image to signed 8-bit format (-128 to 127)
+  for (int i = 0; i < 224 * 224; i++) {
+    image_data[i] = static_cast<int8_t>(resizedData[i] - 128);
   }
 
   return kTfLiteOk;
 }
 
-#endif 
+#endif
