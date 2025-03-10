@@ -6,7 +6,7 @@
 #include "opcode_setting.h"
 #include "TinyML_imageCapture.h"
 #include "Response_Error_Handle.h"
-// #include "main_fn.h"
+#include "main_fn.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
@@ -34,7 +34,7 @@ static uint8_t tensor_arena[kTensorArenaSize];
 }  // namespace
 
 void setup() {
-  Serial.begin(9600);
+  // Serial.begin(9600);
   static tflite::MicroErrorReporter micro_error_reporter;
   error_reporter = &micro_error_reporter;
 
@@ -82,12 +82,13 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Starting inference...");
+  // Serial.println("Starting inference...");
 
    TfLiteStatus invoke_status = interpreter->Invoke();
 
     if (invoke_status != kTfLiteOk) {
-        Serial.println("Error: Model inference failed!");
+        TF_LITE_REPORT_ERROR(error_reporter, "Model inference failed.");
+        // Serial.println("Error: Model inference failed!");
         return;
     }
   // Accepting inferences from the camera then Processing it into model
@@ -114,11 +115,11 @@ void loop() {
   ResponseErrorHandling(error_reporter, square_result, circle_result);
 
 
-Serial.print("Model Output: ");
-    for (int i = 0; i < output->dims->data[0]; i++) {
-        Serial.print(output->data.int8[i]);
-        Serial.print(" ");
-    }
-    Serial.println();
+// Serial.print("Model Output: ");
+//     for (int i = 0; i < output->dims->data[0]; i++) {
+//         Serial.print(output->data.int8[i]);
+//         Serial.print(" ");
+//     }
+//     Serial.println();
 
 }
