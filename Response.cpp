@@ -6,40 +6,36 @@
 #ifndef ARDUINO_EXCLUDE_CODE
 #include "Arduino.h"
 
-void ResponseErrorHandling(tflite::ErrorReporter* error_reporter,int8_t c, int8_t s){
+void ResponseErrorHandling(tflite::ErrorReporter* error_reporter, int8_t circle, int8_t square) {
+    static bool is_initialized = false;
+    if (!is_initialized) {
+        // Pins for the built-in RGB LEDs on the Arduino Nano 33 BLE Sense
+        pinMode(LEDR, OUTPUT);
+        pinMode(LEDG, OUTPUT);
+        pinMode(LEDB, OUTPUT);
+        is_initialized = true;
+    }
 
-  static bool is_initialized = false;
-  if (!is_initialized) {
-    // Pins for the built-in RGB LEDs on the Arduino Nano 33 BLE Sense
-    pinMode(LEDR, OUTPUT);
-    pinMode(LEDG, OUTPUT);
-    pinMode(LEDB, OUTPUT);
-    is_initialized = true;
-  }
-
-  // Note: The RGB LEDs on the Arduino Nano 33 BLE
-  // Sense are on when the pin is LOW, off when HIGH.
-
-  // Switch the person/not person LEDs off
-  digitalWrite(LEDG, HIGH);
-  digitalWrite(LEDR, HIGH);
-
-  // Flash the blue LED after every inference.
-  digitalWrite(LEDB, LOW);
-  delay(100);
-  digitalWrite(LEDB, HIGH);
-
-  // Switch on the green LED when a person is detected,
-  // the red when no person is detected
-  if (c > s) {
-    digitalWrite(LEDG, LOW);
-    digitalWrite(LEDR, HIGH);
-  } else {
+    // Turn off all LEDs initially (HIGH = OFF)
     digitalWrite(LEDG, HIGH);
-    digitalWrite(LEDR, LOW);
-  }
+    digitalWrite(LEDR, HIGH);
+    digitalWrite(LEDB, HIGH);
 
-  TF_LITE_REPORT_ERROR(error_reporter, "Circle score: %d Square score: %d",c, s);
-  }
+    // Flash blue LED after inference (indicating process completed)
+    digitalWrite(LEDB, LOW);
+    delay(100);
+    digitalWrite(LEDB, HIGH);
+
+    // Decision logic based on model output
+    if (circle > square) {  
+        digitalWrite(LEDG, LOW);  // Green ON for Circle
+        digitalWrite(LEDR, HIGH); // Red OFF
+    } else {  
+        digitalWrite(LEDG, HIGH); // Green OFF
+        digitalWrite(LEDR, LOW);  // Red ON for Square
+    }
+
+    TF_LITE_REPORT_ERROR(error_reporter, "Circle score: %d, Square score: %d", circle, square);
+}
 
 #endif 

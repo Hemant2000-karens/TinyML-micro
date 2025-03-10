@@ -6,6 +6,7 @@
 #include "opcode_setting.h"
 #include "TinyML_imageCapture.h"
 #include "Response_Error_Handle.h"
+// #include "main_fn.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
@@ -27,23 +28,24 @@ TfLiteTensor* input = nullptr;
 // constexpr int kTensorArenaSize = 136 * 1024;
 // constexpr int kTensorArenaSize = 750 * 1024;  // 750 KB
 //constexpr int kTensorArenaSize = 200 * 1024;  // 200 KB
-constexpr int kTensorArenaSize = 150 * 1024; // 150 KB
+constexpr int kTensorArenaSize = 140 * 1024; // 140 KB
 
 static uint8_t tensor_arena[kTensorArenaSize];
 }  // namespace
 
 void setup() {
-
+  Serial.begin(9600);
   static tflite::MicroErrorReporter micro_error_reporter;
   error_reporter = &micro_error_reporter;
 
 
-   model = tflite::GetModel(_Users_hemant_Downloads_custom_cnn_model_quantized_tflite);
+   model = tflite::GetModel(micro_model);
   if (model->version() != TFLITE_SCHEMA_VERSION) {
     TF_LITE_REPORT_ERROR(error_reporter,
                          "Model provided is schema version %d not equal "
                          "to supported version %d.",
                          model->version(), TFLITE_SCHEMA_VERSION);
+                         Serial.println(TFLITE_SCHEMA_VERSION);
     return;
   }
 
@@ -51,19 +53,16 @@ void setup() {
  //Model Layer Made here, the same model layer we used while training, the custom layer
 
 // Create an op resolver that supports the required operations
-static tflite::MicroMutableOpResolver<5> micro_op_resolver;
+  static tflite::MicroMutableOpResolver<5> micro_op_resolver;
 
-micro_op_resolver.AddConv2D();           // Conv2D layer
-micro_op_resolver.AddMaxPool2D();        // MaxPooling2D layer
-micro_op_resolver.AddAveragePool2D(); // GlobalAveragePooling2D layer
-micro_op_resolver.AddFullyConnected();   // Dense layer
-micro_op_resolver.AddSoftmax();          // Sigmoid activation
+  micro_op_resolver.AddConv2D();           // Conv2D layer
+  micro_op_resolver.AddMaxPool2D();        // MaxPooling2D layer
+  micro_op_resolver.AddAveragePool2D(); // GlobalAveragePooling2D layer
+  micro_op_resolver.AddFullyConnected();   // Dense layer
+  micro_op_resolver.AddSoftmax();          // Sigmoid activation
 
-// You can also add any other operations you might need
-// micro_op_resolver.AddSoftmax();         // If your model uses Softmax (though your current model doesn't)
-
-
-
+  // You can also add any other operations you might need
+  // micro_op_resolver.AddSoftmax();         // If your model uses Softmax (though your current model doesn't)
 
   // Model Layers Ends Here
  static tflite::MicroInterpreter static_interpreter(
@@ -83,7 +82,14 @@ micro_op_resolver.AddSoftmax();          // Sigmoid activation
 }
 
 void loop() {
+  Serial.println("Starting inference...");
 
+   TfLiteStatus invoke_status = interpreter->Invoke();
+
+    if (invoke_status != kTfLiteOk) {
+        Serial.println("Error: Model inference failed!");
+        return;
+    }
   // Accepting inferences from the camera then Processing it into model
   
   if (kTfLiteOk != GetImage(error_reporter, kNumCols, kNumRows, kNumChannels,
@@ -94,13 +100,25 @@ void loop() {
   // Run the model on this input and make sure it succeeds.
   if (kTfLiteOk != interpreter->Invoke()) {
     TF_LITE_REPORT_ERROR(error_reporter, "Invoke failed.");
+    
   }
+
 
   TfLiteTensor* output = interpreter->output(0);
 
   // Process the inference results.
   int8_t square_result = output->data.uint8[square];
   int8_t circle_result = output->data.uint8[circle];
+
+  // char result_output = output-> data.char{"square","circle"};
   ResponseErrorHandling(error_reporter, square_result, circle_result);
+
+
+Serial.print("Model Output: ");
+    for (int i = 0; i < output->dims->data[0]; i++) {
+        Serial.print(output->data.int8[i]);
+        Serial.print(" ");
+    }
+    Serial.println();
 
 }

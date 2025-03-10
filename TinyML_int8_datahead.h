@@ -1,7 +1,7 @@
 #ifndef TinyML_int8_datahead_H_
 #define TinyML_int8_datahead_H_
 
-extern const unsigned char _Users_hemant_Downloads_custom_cnn_model_quantized_tflite[];
-extern const int _Users_hemant_Downloads_custom_cnn_model_quantized_tflite_len;
+extern const unsigned char micro_model[];
+extern const int micro_model_len;
 
 #endif //TinyML_int8_datahead_H_
