@@ -82,44 +82,35 @@ void setup() {
 }
 
 void loop() {
-  // Serial.println("Starting inference...");
-
-   TfLiteStatus invoke_status = interpreter->Invoke();
-
-    if (invoke_status != kTfLiteOk) {
-        TF_LITE_REPORT_ERROR(error_reporter, "Model inference failed.");
-        // Serial.println("Error: Model inference failed!");
-        return;
-    }
-  // Accepting inferences from the camera then Processing it into model
-  
+  1️⃣ Accept Image First (GetImage)
   if (kTfLiteOk != GetImage(error_reporter, kNumCols, kNumRows, kNumChannels,
-                            input->data.int8)) {
+                            reinterpret_cast<int8_t*>(input->data.uint8))) {  // Type cast uint8_t* → int8_t*
     TF_LITE_REPORT_ERROR(error_reporter, "Image capture failed.");
+    return;
   }
 
-  // Run the model on this input and make sure it succeeds.
+  // 2️⃣ Run Model on Captured Image
   if (kTfLiteOk != interpreter->Invoke()) {
     TF_LITE_REPORT_ERROR(error_reporter, "Invoke failed.");
-    
+    return;
   }
 
-
+  // 3️⃣ Get Model Output
   TfLiteTensor* output = interpreter->output(0);
 
-  // Process the inference results.
+  // 4️⃣ Process Output
   int8_t square_result = output->data.uint8[square];
   int8_t circle_result = output->data.uint8[circle];
 
-  // char result_output = output-> data.char{"square","circle"};
+  // 5️⃣ Handle the Response
   ResponseErrorHandling(error_reporter, square_result, circle_result);
 
-
-// Serial.print("Model Output: ");
-//     for (int i = 0; i < output->dims->data[0]; i++) {
-//         Serial.print(output->data.int8[i]);
-//         Serial.print(" ");
-//     }
-//     Serial.println();
+  // Debugging Serial Print
+  // Serial.print("Model Output: ");
+  // for (int i = 0; i < output->dims->data[0]; i++) {
+  //     Serial.print(output->data.uint8[i]);
+  //     Serial.print(" ");
+  // }
+  // Serial.println();
 
 }
